@@ -1,4 +1,6 @@
 from distutils.util import strtobool
+
+import coreschema
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -10,10 +12,12 @@ from requests import get
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
+from rest_framework.schemas import coreapi, SchemaGenerator
+from rest_framework.schemas.openapi import AutoSchema
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.schemas.openapi import AutoSchema
+# from rest_framework.schemas.openapi import AutoSchema
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
 
@@ -24,13 +28,42 @@ from app.serializers import UserSerializer, CategorySerializer, ShopSerializer, 
 # from app.signals import new_user_registered, new_order
 from app.tasks import new_user_registered_signal, password_reset_token_created, new_order
 
+# class CustomUserSchema(AutoSchema):
+#     manual_fields = []  # common fields
+#
+#     def get_operation(self, path, method):
+#         pass
+    # def get_manual_fields(self, path, method):
+    #     custom_fields = []
+    #     if method.lower() == "post":
+    #         custom_fields = [
+    #             coreapi.Field(
+    #                 "first_name",
+    #                 required=True,
+    #                 location='body',
+    #                 description='Username of the user'
+    #             ),
+    #         ]
+    #     return self._manual_fields + custom_fields
+
+
+
 
 class RegisterAccount(APIView):
+    # schema = CustomUserSchema()
+    schema = AutoSchema()
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    # schema = AutoSchema(tags=['first_name', 'last_name', 'email', 'password', 'company', 'position', 'type'])
-
     def post(self, request):
+        # self.schema = AutoSchema(manual_fields=[
+        #     coreapi.Field("Регистрация",
+        #                   required=True,
+        #                   location='body',
+        #                   schema=coreschema.String(),
+        #                   description='g')])
+
+        queryset = User.objects.all()
+        serializer_class = UserSerializer
         if {'first_name', 'last_name', 'email', 'password', 'company', 'position', 'type'}.issubset(request.data):
             try:
                 validate_password(request.data['password'])
@@ -111,7 +144,7 @@ class LoginAccount(APIView):
 
 
 class CategoryView(ListAPIView):
-    schema = None
+    # schema = None
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 

@@ -1,6 +1,8 @@
+from copy import deepcopy
 from distutils.util import strtobool
 
 import coreschema
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
@@ -8,19 +10,22 @@ from django.core.validators import URLValidator
 from django.db import IntegrityError
 from django.db.models import Q, Sum, F
 from django.http import JsonResponse
+from psycopg2.extensions import JSON
 from requests import get
 from rest_framework.authtoken.models import Token
 from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.schemas import coreapi, SchemaGenerator
-from rest_framework.schemas.openapi import AutoSchema
+# from rest_framework.schemas.openapi import AutoSchema
+from rest_framework.status import is_success
 from rest_framework.views import APIView
 from rest_framework import viewsets
 from rest_framework.decorators import action
-# from rest_framework.schemas.openapi import AutoSchema
+from rest_framework.schemas.openapi import AutoSchema
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
-
+import collections
 from app.models import User, Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
     Contact, ConfirmEmailToken
 from app.serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
@@ -28,42 +33,53 @@ from app.serializers import UserSerializer, CategorySerializer, ShopSerializer, 
 # from app.signals import new_user_registered, new_order
 from app.tasks import new_user_registered_signal, password_reset_token_created, new_order
 
-# class CustomUserSchema(AutoSchema):
-#     manual_fields = []  # common fields
-#
-#     def get_operation(self, path, method):
-#         pass
-    # def get_manual_fields(self, path, method):
-    #     custom_fields = []
-    #     if method.lower() == "post":
-    #         custom_fields = [
-    #             coreapi.Field(
-    #                 "first_name",
-    #                 required=True,
-    #                 location='body',
-    #                 description='Username of the user'
-    #             ),
-    #         ]
-    #     return self._manual_fields + custom_fields
 
+class CustomUserSchema(AutoSchema):
+    result = []
+
+    def get_operation(self, path, method, *arg, **kwargs):
+        operation = super().get_operation(path, method, *arg, **kwargs)
+        if 'parameters' in self.view.result:
+            for value in self.view.result['parameters']:
+                operation['parameters'].append(
+                    {'name': value, 'in': 'query', 'required': False, 'description': 'Output format',
+                     'schema': {'type': 'string'}})
+        else:
+            operation['parameters'] = []
+
+        if 'authorization' in self.view.result:
+            if self.view.result['authorization']:
+                operation['parameters'].append(
+                    {'name': 'Authorization', 'in': 'header', 'required': False, 'description': 'Output format',
+                     'schema': {'type': 'string'}})
+                operation['headers'] = {'Authorization':{'type':'string'}}
+        if method == 'GET':
+
+            name = self.view.__class__.__name__
+            if name.endswith('APIView'):
+                name = name[:-7]
+            operation['operationId'] = name
+            return operation
+        else:
+            name = self.view.__class__.__name__
+            if name.endswith('APIView'):
+                name = name[:-7]
+            operation['operationId'] = name
+            operation['requestBody'] = {'content': {'application/x-www-form-urlencoded': {'schema': {'properties': {}}}}}
+            body = operation['requestBody']['content']['application/x-www-form-urlencoded']['schema']
+            for value in self.view.result['requestBody']:
+                body['properties'].update({value: {'type':'string'}})
+            operation['requestBody']['content']['application/x-www-form-urlencoded']['schema'] = body
+            return operation
 
 
 
 class RegisterAccount(APIView):
-    # schema = CustomUserSchema()
-    schema = AutoSchema()
+    result = {'requestBody':['first_name', 'last_name', 'email', 'password', 'company', 'position', 'type']}
+    schema = CustomUserSchema()
     queryset = User.objects.all()
     serializer_class = UserSerializer
     def post(self, request):
-        # self.schema = AutoSchema(manual_fields=[
-        #     coreapi.Field("Регистрация",
-        #                   required=True,
-        #                   location='body',
-        #                   schema=coreschema.String(),
-        #                   description='g')])
-
-        queryset = User.objects.all()
-        serializer_class = UserSerializer
         if {'first_name', 'last_name', 'email', 'password', 'company', 'position', 'type'}.issubset(request.data):
             try:
                 validate_password(request.data['password'])
@@ -89,6 +105,8 @@ class RegisterAccount(APIView):
 
 
 class ConfirmAccount(APIView):
+    result = {'requestBody':['email', 'token']}
+    schema = CustomUserSchema()
     def post(self, request, *args, **kwargs):
         if {'email', 'token'}.issubset(request.data):
             token = ConfirmEmailToken.objects.filter(user__email=request.data['email'],
@@ -105,6 +123,8 @@ class ConfirmAccount(APIView):
 
 
 class AccountDetails(APIView):
+    result = {'requestBody':['first_name', 'last_name', 'email', 'password', 'company', 'position', 'type'], 'authorization':True}
+    schema = CustomUserSchema()
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -132,6 +152,9 @@ class AccountDetails(APIView):
 
 
 class LoginAccount(APIView):
+    result = {'requestBody':['email', 'password'], 'authorization':True}
+    schema = CustomUserSchema()
+
     def post(self, request, *args, **kwargs):
         if {'email', 'password'}.issubset(request.data):
             user = authenticate(request, username=request.data['email'], password=request.data['password'])
@@ -144,18 +167,23 @@ class LoginAccount(APIView):
 
 
 class CategoryView(ListAPIView):
-    # schema = None
+    result = {'authorization':True}
+    schema = CustomUserSchema()
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 
 class ShopView(ListAPIView):
+    result = {'authorization': True}
+    schema = CustomUserSchema()
     queryset = Shop.objects.filter(state=True)
     serializer_class = ShopSerializer
 
 
 class ProductInfoView(APIView):
+    result = {'parameters': ['shop_id', 'category_id'], 'authorization': True}
+    schema = CustomUserSchema()
     def get(self, request, *args, **kwargs):
         query = Q(shop__state=True)
         shop_id = request.query_params.get('shop_id')
@@ -173,6 +201,9 @@ class ProductInfoView(APIView):
 
 
 class BasketView(APIView):
+    result = {'requestBody':['items'], 'authorization': True}
+    schema = CustomUserSchema()
+
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -248,6 +279,9 @@ class BasketView(APIView):
 
 
 class PartnerUpdate(APIView):
+    result = {'requestBody':['url'], 'authorization': True}
+    schema = CustomUserSchema()
+
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -287,9 +321,14 @@ class PartnerUpdate(APIView):
 
 
 class PartnerState(viewsets.ModelViewSet):
+
+    result = {'requestBody':['state'], 'authorization': True}
+    schema = CustomUserSchema()
     queryset = Shop.objects.all()
+
     serializer_class = ShopSerializer
-    @action(detail=False)
+
+    @action(detail=False, schema=None)
     def get(self, request):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -298,7 +337,7 @@ class PartnerState(viewsets.ModelViewSet):
         shop = self.request.user.shop
         serializer = ShopSerializer(shop)
         return Response(serializer.data)
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], schema=None)
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -315,6 +354,8 @@ class PartnerState(viewsets.ModelViewSet):
 
 
 class PartnerOrders(APIView):
+    result = {'authorization': True}
+    schema = CustomUserSchema()
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -330,6 +371,9 @@ class PartnerOrders(APIView):
 
 
 class ContactView(APIView):
+    result = {'requestBody':['city', 'street', 'house', 'structure', 'building', 'apartment', 'user', 'phone'], 'authorization': True}
+    schema = CustomUserSchema()
+
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
@@ -381,6 +425,8 @@ class ContactView(APIView):
                     return JsonResponse({'Status': contact, 'Error': 'Не указаны все необходимые аргументы'})
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
 class OrderView(APIView):
+    result = {'requestBody':['id', 'contact'], 'authorization': True}
+    schema = CustomUserSchema()
     def get(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)

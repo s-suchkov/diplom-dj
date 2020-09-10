@@ -5,15 +5,15 @@ info:
 paths:
   /api/v1/partner/state/:
     get:
-      operationId: listShops
+      operationId: PartnerState
       description: ''
       parameters:
-      - name: page
+      - name: Authorization
+        in: header
         required: false
-        in: query
-        description: A page number within the paginated result set.
+        description: Output format
         schema:
-          type: integer
+          type: string
       responses:
         '200':
           content:
@@ -45,26 +45,26 @@ paths:
                       required:
                       - name
           description: ''
+      headers:
+        Authorization:
+          type: string
     post:
-      operationId: createShop
+      operationId: PartnerState
       description: ''
-      parameters: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
       requestBody:
         content:
-          application/json:
-            schema: &id001
-              properties:
-                name:
-                  type: string
-                  maxLength: 100
-                state:
-                  type: boolean
-              required:
-              - name
           application/x-www-form-urlencoded:
-            schema: *id001
-          multipart/form-data:
-            schema: *id001
+            schema:
+              properties:
+                state:
+                  type: string
       responses:
         '200':
           content:
@@ -82,38 +82,18 @@ paths:
                 required:
                 - name
           description: ''
-  /api/v1/partner/state/get/:
-    get:
-      operationId: RetrieveShop
-      description: ''
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                properties:
-                  id:
-                    type: integer
-                    readOnly: true
-                  name:
-                    type: string
-                    maxLength: 100
-                  state:
-                    type: boolean
-                required:
-                - name
-          description: ''
+      headers:
+        Authorization:
+          type: string
   /api/v1/partner/state/{id}/:
     get:
-      operationId: retrieveShop
+      operationId: PartnerState
       description: ''
       parameters:
-      - name: id
-        in: path
-        required: true
-        description: "A unique integer value identifying this \u041C\u0430\u0433\u0430\
-          \u0437\u0438\u043D."
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
         schema:
           type: string
       responses:
@@ -133,33 +113,26 @@ paths:
                 required:
                 - name
           description: ''
+      headers:
+        Authorization:
+          type: string
     put:
-      operationId: updateShop
+      operationId: PartnerState
       description: ''
       parameters:
-      - name: id
-        in: path
-        required: true
-        description: "A unique integer value identifying this \u041C\u0430\u0433\u0430\
-          \u0437\u0438\u043D."
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
         schema:
           type: string
       requestBody:
         content:
-          application/json:
-            schema: &id002
-              properties:
-                name:
-                  type: string
-                  maxLength: 100
-                state:
-                  type: boolean
-              required:
-              - name
           application/x-www-form-urlencoded:
-            schema: *id002
-          multipart/form-data:
-            schema: *id002
+            schema:
+              properties:
+                state:
+                  type: string
       responses:
         '200':
           content:
@@ -177,31 +150,26 @@ paths:
                 required:
                 - name
           description: ''
+      headers:
+        Authorization:
+          type: string
     patch:
-      operationId: partial_updateShop
+      operationId: PartnerState
       description: ''
       parameters:
-      - name: id
-        in: path
-        required: true
-        description: "A unique integer value identifying this \u041C\u0430\u0433\u0430\
-          \u0437\u0438\u043D."
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
         schema:
           type: string
       requestBody:
         content:
-          application/json:
-            schema: &id003
-              properties:
-                name:
-                  type: string
-                  maxLength: 100
-                state:
-                  type: boolean
           application/x-www-form-urlencoded:
-            schema: *id003
-          multipart/form-data:
-            schema: *id003
+            schema:
+              properties:
+                state:
+                  type: string
       responses:
         '200':
           content:
@@ -219,25 +187,43 @@ paths:
                 required:
                 - name
           description: ''
+      headers:
+        Authorization:
+          type: string
     delete:
-      operationId: destroyShop
+      operationId: PartnerState
       description: ''
       parameters:
-      - name: id
-        in: path
-        required: true
-        description: "A unique integer value identifying this \u041C\u0430\u0433\u0430\
-          \u0437\u0438\u043D."
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
         schema:
           type: string
       responses:
         '204':
           description: ''
+      headers:
+        Authorization:
+          type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                state:
+                  type: string
   /api/v1/partner/orders:
     get:
-      operationId: listPartnerOrders
+      operationId: PartnerOrders
       description: ''
-      parameters: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
       responses:
         '200':
           content:
@@ -246,11 +232,20 @@ paths:
                 type: array
                 items: {}
           description: ''
+      headers:
+        Authorization:
+          type: string
   /api/v1/user/details:
     get:
-      operationId: listAccountDetails
+      operationId: AccountDetails
       description: ''
-      parameters: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
       responses:
         '200':
           content:
@@ -259,21 +254,58 @@ paths:
                 type: array
                 items: {}
           description: ''
+      headers:
+        Authorization:
+          type: string
     post:
-      operationId: CreateAccountDetails
+      operationId: AccountDetails
       description: ''
-      parameters: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
       responses:
         '200':
           content:
             application/json:
               schema: {}
           description: ''
+      headers:
+        Authorization:
+          type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                company:
+                  type: string
+                position:
+                  type: string
+                type:
+                  type: string
   /api/v1/user/contact:
     get:
-      operationId: listContacts
+      operationId: ContactView
       description: ''
-      parameters: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
       responses:
         '200':
           content:
@@ -282,44 +314,137 @@ paths:
                 type: array
                 items: {}
           description: ''
+      headers:
+        Authorization:
+          type: string
     post:
-      operationId: CreateContact
+      operationId: ContactView
       description: ''
-      parameters: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
       responses:
         '200':
           content:
             application/json:
               schema: {}
           description: ''
+      headers:
+        Authorization:
+          type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                city:
+                  type: string
+                street:
+                  type: string
+                house:
+                  type: string
+                structure:
+                  type: string
+                building:
+                  type: string
+                apartment:
+                  type: string
+                user:
+                  type: string
+                phone:
+                  type: string
     put:
-      operationId: UpdateContact
+      operationId: ContactView
       description: ''
-      parameters: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
       responses:
         '200':
           content:
             application/json:
               schema: {}
           description: ''
+      headers:
+        Authorization:
+          type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                city:
+                  type: string
+                street:
+                  type: string
+                house:
+                  type: string
+                structure:
+                  type: string
+                building:
+                  type: string
+                apartment:
+                  type: string
+                user:
+                  type: string
+                phone:
+                  type: string
     delete:
-      operationId: DestroyContact
+      operationId: ContactView
       description: ''
-      parameters: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
       responses:
         '204':
           description: ''
+      headers:
+        Authorization:
+          type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                city:
+                  type: string
+                street:
+                  type: string
+                house:
+                  type: string
+                structure:
+                  type: string
+                building:
+                  type: string
+                apartment:
+                  type: string
+                user:
+                  type: string
+                phone:
+                  type: string
   /api/v1/categories:
     get:
-      operationId: listCategorys
+      operationId: CategoryView
       description: ''
       parameters:
-      - name: page
+      - name: Authorization
+        in: header
         required: false
-        in: query
-        description: A page number within the paginated result set.
+        description: Output format
         schema:
-          type: integer
+          type: string
       responses:
         '200':
           content:
@@ -349,17 +474,20 @@ paths:
                       required:
                       - name
           description: ''
+      headers:
+        Authorization:
+          type: string
   /api/v1/shops:
     get:
-      operationId: listShops
+      operationId: ShopView
       description: ''
       parameters:
-      - name: page
+      - name: Authorization
+        in: header
         required: false
-        in: query
-        description: A page number within the paginated result set.
+        description: Output format
         schema:
-          type: integer
+          type: string
       responses:
         '200':
           content:
@@ -391,141 +519,220 @@ paths:
                       required:
                       - name
           description: ''
+      headers:
+        Authorization:
+          type: string
   /api/v1/products:
     get:
-      operationId: listProductInfos
-      description: ''
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items: {}
-          description: ''
-  /api/v1/basket:
-    get:
-      operationId: listBaskets
-      description: ''
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items: {}
-          description: ''
-    post:
-      operationId: CreateBasket
-      description: ''
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: ''
-    put:
-      operationId: UpdateBasket
-      description: ''
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: ''
-    delete:
-      operationId: DestroyBasket
-      description: ''
-      parameters: []
-      responses:
-        '204':
-          description: ''
-  /api/v1/order:
-    get:
-      operationId: listOrders
-      description: ''
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                type: array
-                items: {}
-          description: ''
-    post:
-      operationId: CreateOrder
-      description: ''
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: ''
-  /api/v1/partner/update:
-    post:
-      operationId: CreatePartnerUpdate
-      description: ''
-      parameters: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema: {}
-          description: ''
-  /api/v1/partner/state/{id}/post/:
-    post:
-      operationId: CreateShop
+      operationId: ProductInfoView
       description: ''
       parameters:
-      - name: id
-        in: path
-        required: true
-        description: "A unique integer value identifying this \u041C\u0430\u0433\u0430\
-          \u0437\u0438\u043D."
+      - name: shop_id
+        in: query
+        required: false
+        description: Output format
         schema:
+          type: string
+      - name: category_id
+        in: query
+        required: false
+        description: Output format
+        schema:
+          type: string
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      headers:
+        Authorization:
+          type: string
+  /api/v1/basket:
+    get:
+      operationId: BasketView
+      description: ''
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      headers:
+        Authorization:
+          type: string
+    post:
+      operationId: BasketView
+      description: ''
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      headers:
+        Authorization:
           type: string
       requestBody:
         content:
-          application/json:
-            schema: &id004
-              properties:
-                name:
-                  type: string
-                  maxLength: 100
-                state:
-                  type: boolean
-              required:
-              - name
           application/x-www-form-urlencoded:
-            schema: *id004
-          multipart/form-data:
-            schema: *id004
+            schema:
+              properties:
+                items:
+                  type: string
+    put:
+      operationId: BasketView
+      description: ''
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      headers:
+        Authorization:
+          type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                items:
+                  type: string
+    delete:
+      operationId: BasketView
+      description: ''
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      headers:
+        Authorization:
+          type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                items:
+                  type: string
+  /api/v1/order:
+    get:
+      operationId: OrderView
+      description: ''
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
       responses:
         '200':
           content:
             application/json:
               schema:
-                properties:
-                  id:
-                    type: integer
-                    readOnly: true
-                  name:
-                    type: string
-                    maxLength: 100
-                  state:
-                    type: boolean
-                required:
-                - name
+                type: array
+                items: {}
           description: ''
+      headers:
+        Authorization:
+          type: string
+    post:
+      operationId: OrderView
+      description: ''
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      headers:
+        Authorization:
+          type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                id:
+                  type: string
+                contact:
+                  type: string
+  /api/v1/partner/update:
+    post:
+      operationId: PartnerUpdate
+      description: ''
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: ''
+      headers:
+        Authorization:
+          type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                url:
+                  type: string
   /api/v1/user/register:
     post:
-      operationId: CreateUser
+      operationId: RegisterAccount
       description: ''
       parameters: []
       responses:
@@ -534,9 +741,28 @@ paths:
             application/json:
               schema: {}
           description: ''
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+                company:
+                  type: string
+                position:
+                  type: string
+                type:
+                  type: string
   /api/v1/user/register/confirm:
     post:
-      operationId: CreateConfirmAccount
+      operationId: ConfirmAccount
       description: ''
       parameters: []
       responses:
@@ -545,17 +771,44 @@ paths:
             application/json:
               schema: {}
           description: ''
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                email:
+                  type: string
+                token:
+                  type: string
   /api/v1/user/login:
     post:
-      operationId: CreateLoginAccount
+      operationId: LoginAccount
       description: ''
-      parameters: []
+      parameters:
+      - name: Authorization
+        in: header
+        required: false
+        description: Output format
+        schema:
+          type: string
       responses:
         '200':
           content:
             application/json:
               schema: {}
           description: ''
+      headers:
+        Authorization:
+          type: string
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
   /api/v1/user/password_reset:
     post:
       operationId: CreateEmail
@@ -568,7 +821,7 @@ paths:
       requestBody:
         content:
           application/json:
-            schema: &id005
+            schema: &id001
               properties:
                 email:
                   type: string
@@ -576,9 +829,9 @@ paths:
               required:
               - email
           application/x-www-form-urlencoded:
-            schema: *id005
+            schema: *id001
           multipart/form-data:
-            schema: *id005
+            schema: *id001
       responses:
         '200':
           content:
@@ -600,7 +853,7 @@ paths:
       requestBody:
         content:
           application/json:
-            schema: &id006
+            schema: &id002
               properties:
                 password:
                   type: string
@@ -610,9 +863,9 @@ paths:
               - password
               - token
           application/x-www-form-urlencoded:
-            schema: *id006
+            schema: *id002
           multipart/form-data:
-            schema: *id006
+            schema: *id002
       responses:
         '200':
           content:

@@ -14,7 +14,7 @@ django-debug-toolbar==2.0
 django-rest-passwordreset==1.1.0
 django-select2==7.1.0
 django-widget-tweaks==1.4.8
-djangorestframework==3.11.0
+djangorestframework==3.11.2
 dnspython==2.0.0
 eventlet==0.25.2
 future==0.18.2

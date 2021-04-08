@@ -6,7 +6,7 @@ celery==4.3.0
 certifi==2019.11.28
 chardet==3.0.4
 cloudpickle==1.2.2
-Django==3.0.8
+Django==3.0.14
 django-appconf==1.0.3
 django-datetime-widget==0.9.3
 django-datetimepicker==3.14

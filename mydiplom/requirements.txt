@@ -16,7 +16,7 @@ django-select2==7.1.0
 django-widget-tweaks==1.4.8
 djangorestframework==3.11.0
 dnspython==2.0.0
-eventlet==0.25.2
+eventlet==0.31.0
 future==0.18.2
 greenlet==0.4.16
 gym==0.15.4

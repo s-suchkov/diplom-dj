@@ -24,7 +24,7 @@ idna==2.9
 importlib-metadata==1.6.0
 kombu==4.6.11
 monotonic==1.5
-numpy==1.19.1
+numpy==1.22.0
 opencv-python==4.4.0.42
 pep517==0.8.2
 Pillow==6.1.0
